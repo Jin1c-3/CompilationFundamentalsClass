@@ -21,7 +21,7 @@ class LexicalAnalyzer:
         读取输入文件的函数，从input文件中读取C语言源程序语句
         """
         try:
-            with open(file_name, "r") as file:
+            with open(file_name, "r", encoding="utf-8") as file:
                 self.data = file.read()
                 print(f"Successfully read input file named {file_name}.")
         except FileNotFoundError:
@@ -65,7 +65,7 @@ class LexicalAnalyzer:
         词法分析器运行过程中将用户源程序中出现的无符号整数填入数值字段，而类型、存储长度等字段为空，这些字段在编译过程的后续阶段填入。
         """
         self.identified_unsigned_integers = []
-        pattern = r"\b[0-9]+\b"
+        pattern = r"(?<!\.)\b[0-9]+\b(?!\.)"
         unsigned_integers = re.findall(pattern, self.data)
         for unsigned_integer in unsigned_integers:
             # 创建一个字典来存储数值、类型和存储长度
@@ -89,7 +89,7 @@ class LexicalAnalyzer:
         词法分析器运行过程中将用户源程序中出现的无符号浮点数填入数值字段，而类型、存储长度等字段为空，这些字段在编译过程的后续阶段填入。
         """
         self.identified_unsigned_floats = []
-        pattern = r"\b[0-9]*\.[0-9]+\b"
+        pattern = r"\b[0-9]*\.[0-9]+(?:[Ee][+-]?[0-9]+)?\b"
         unsigned_floats = re.findall(pattern, self.data)
         for unsigned_float in unsigned_floats:
             # 创建一个字典来存储数值、类型和存储长度
@@ -98,6 +98,7 @@ class LexicalAnalyzer:
             if not any(
                 d["value"] == unsigned_float for d in self.identified_unsigned_floats
             ):
+
                 self.identified_unsigned_floats.append(float_info)
         return self.identified_unsigned_floats
 
@@ -108,7 +109,7 @@ class LexicalAnalyzer:
         """
         self.identified_reserved_words = []
         for word in self.reserved_words:
-            if word in self.data:
+            if re.search(r'\b{}\b'.format(re.escape(word)), self.data):
                 self.identified_reserved_words.append(word)
         return self.identified_reserved_words
 
@@ -118,7 +119,7 @@ class LexicalAnalyzer:
         """
         self.identified_operators = []
         for operator in self.operators:
-            if operator in self.data:
+            if re.search(r'\b{}\b'.format(re.escape(operator)), self.data):
                 self.identified_operators.append(operator)
         return self.identified_operators
 
@@ -157,12 +158,9 @@ class LexicalAnalyzer:
             word
             for word in re.findall(
                 r"[^\s"
-                + re.escape("".join(self.operators))
-                + re.escape("".join(self.delimiters))
-                + r"]+|["
-                + re.escape("".join(self.operators))
-                + re.escape("".join(self.delimiters))
-                + r"]",
+                + "|".join(map(re.escape, sorted(self.operators + self.delimiters, key=len, reverse=True)))
+                + r"]+|"
+                + "|".join(map(re.escape, sorted(self.operators + self.delimiters, key=len, reverse=True))),
                 self.data,
             )
             if word
@@ -186,6 +184,7 @@ class LexicalAnalyzer:
                 for ufd_dict in self.identified_unsigned_floats
             ):
                 lexical_tuple["category"] = self.word_categories.UNSIGNED_FLOAT.value
+                # lexical_tuple["value"] = format(float(word), '.15g')
             elif word in self.identified_reserved_words:
                 lexical_tuple["category"] = self.word_categories.RESERVED_WORD.value
             elif word in self.operators:
@@ -202,9 +201,9 @@ class LexicalAnalyzer:
         主函数，用于调用其他函数完成词法分析器的功能
         """
         # 处理错误，识别非法字符并报错
-        print("Handling errors...")
-        if self.handle_illegal_characters():
-            return
+        # print("Handling errors...")
+        # if self.handle_illegal_characters():
+        #     return
 
         # 识别用户标识符并添加到用户标识符表idlist中
         print("Identifying identifiers...")

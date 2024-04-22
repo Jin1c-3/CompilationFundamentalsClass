@@ -21,8 +21,8 @@ reslist = [
     "const",
     "continue",
     "default",
-    "do",
     "double",
+    "do",
     "else",
     "enum",
     "extern",
@@ -46,31 +46,33 @@ reslist = [
     "void",
     "volatile",
     "while",
+    "scanf",
+    "main"
 ]
 
 operators = [
-    "+",
-    "-",
-    "*",
-    "/",
-    "%",
     "++",
     "--",
     "==",
-    "!=",
-    ">",
-    "<",
     ">=",
     "<=",
     "&&",
     "||",
+    "<<",
+    ">>",
+    "!=",
+    ">",
+    "<",
     "!",
     "&",
     "|",
     "^",
     "~",
-    "<<",
-    ">>",
+    "+",
+    "-",
+    "*",
+    "/",
+    "%",
     "=",
 ]
 
@@ -95,16 +97,25 @@ def output_lexical_analyzer_results(
             )
 
             file.write("Lexical Tuples:\n")
-            file.write(tabulate(lexical_tuples, headers="keys") + "\n\n")
+            file.write(
+                "\n".join(
+                    f"ERROR()" if tuple['category'] is None else f"({WordCategory(tuple['category']).name}, {tuple['value']})"
+                    for tuple in lexical_tuples
+                )
+                + "\n\n"
+            )
 
             file.write("Identifiers:\n")
-            file.write(tabulate(idlist, headers="keys") + "\n\n")
+            file.write(tabulate([[id['name'], id['type'], id['storage_length']] for id in idlist], tablefmt='plain', headers=["Name", "Type", "Storage Length"]) + "\n\n")
 
             file.write("Unsigned Integers:\n")
-            file.write(tabulate(uintlist, headers="keys") + "\n\n")
+            file.write(tabulate([[uint['value'], uint['type'], uint['storage_length']] for uint in uintlist], tablefmt='plain', headers=["Value", "Type", "Storage Length"], numalign="left", stralign="left") + "\n\n")
 
             file.write("Unsigned Floats:\n")
-            file.write(tabulate(ufdlist, headers="keys") + "\n\n")
+            header = "Value\tType\tStorage Length\n"
+            rows = [f"{float(ufd['value']):.4f}\t\t" for ufd in ufdlist]
+            table = header + "\n".join(rows)
+            file.write(table + "\n\n")
 
             file.write("Reserved Words: " + ", ".join(reslist) + "\n\n")
             file.write("Operators: " + ", ".join(op_list) + "\n\n")

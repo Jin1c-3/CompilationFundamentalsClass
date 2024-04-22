@@ -1,24 +1,17 @@
-int add() {
-    return 0;
-}
-
-int main()
+void main()
 {
-    int _a = 10;float b=123.567;
-    char c = 127;int d= 0;
-    if(_a==0){
-        d = 1;
-    }
-    else if (b < 100)
+    int i, j, k, d, r, t, N;
+    double score, _average, max=0.00, min=100.00, sum=0.00, O, P, Q;
+    scanf(N);
+    for (i=1; i<=N; i++)
     {
-        d = 10;
+        scanf(score);
+        if (max<score) max=score;
+        if (min>score) min=score;
+        sum=sum+score;
     }
-    else
-    {
-        d = 7;
-    }
-
-    int sum = add();
-
-    return 0;
+    _average= (sum-max-min)/(N-2);
+    j = 160; k= 40; d=j-k;
+    O= 2.5E3; P= 4.6780; Q= O*P;
+    r= j&&k; t= j||k; @;
 }
