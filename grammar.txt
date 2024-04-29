@@ -1,0 +1,5 @@
+G[E]：E→ TA
+A→ +TA | ε
+T→ FB
+B→*FB | ε
+F→(E) | i

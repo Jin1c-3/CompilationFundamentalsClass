@@ -13,5 +13,6 @@ void main()
     _average= (sum-max-min)/(N-2);
     j = 160; k= 40; d=j-k;
     O= 2.5E3; P= 4.6780; Q= O*P;
-    r= j&&k; t= j||k; @;
+    r= j && k; t= j || k; @;
 }
+
