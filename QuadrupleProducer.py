@@ -7,6 +7,14 @@ with open("quad_input.txt", "r") as file:
 # 生成抽象语法树
 tree = ast.parse(code)
 
+op_dict = {
+    "Mult": "*",
+    "Add": "+",
+    "Sub": "-",
+    "Gt": ">",
+    "Lt": "<",
+}
+
 
 class QuadrupleGenerator(ast.NodeVisitor):
     def __init__(self):
@@ -27,7 +35,7 @@ class QuadrupleGenerator(ast.NodeVisitor):
         left = self.visit(node.left)
         right = self.visit(node.right)
         result = self.new_temp_var()
-        self.quadruples.append((type(node.op).__name__, left, right, result))
+        self.quadruples.append((op_dict[type(node.op).__name__], left, right, result))
         return result
 
     def visit_Name(self, node):
@@ -43,6 +51,7 @@ class QuadrupleGenerator(ast.NodeVisitor):
 
     def visit_If(self, node):
         op, left, right = self.visit(node.test)
+        op = op_dict[op]
         self.quadruples.append(("j" + op, left, right, "_"))
         jTrue_position = len(self.quadruples) - 1
         self.quadruples.append(("j", "_", "_", "_"))
@@ -60,6 +69,7 @@ class QuadrupleGenerator(ast.NodeVisitor):
     def visit_While(self, node):
         start_position = len(self.quadruples)
         op, left, right = self.visit(node.test)
+        op = op_dict[op]
         self.quadruples.append(("j" + op, left, right, "_"))
         jTrue_position = len(self.quadruples) - 1
         self.quadruples.append(("j", "_", "_", "_"))
@@ -86,4 +96,4 @@ for i in range(len(generator.backpatches)):
 
 # 打印回填后的四元式
 for i, quadruple in enumerate(generator.quadruples):
-    print(i + 100, quadruple)
+    print(i + 100, ":", quadruple)
