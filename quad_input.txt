@@ -1,0 +1,8 @@
+n=1;
+x=a+b*c; 
+if x>0:
+    m=n+2;
+else:
+    m=n-3;
+while y<10:
+    z=z+m;
