@@ -15,6 +15,8 @@ op_dict = {
     "Lt": "<",
 }
 
+base_address = 100
+
 
 class QuadrupleGenerator(ast.NodeVisitor):
     def __init__(self):
@@ -77,7 +79,7 @@ class QuadrupleGenerator(ast.NodeVisitor):
         jFalse_position = len(self.quadruples) - 1
         for stmt in node.body:
             self.visit(stmt)
-        self.quadruples.append(("j", "_", "_", start_position))
+        self.quadruples.append(("j", "_", "_", start_position + base_address))
         self.backpatches.append((jFalse_position, len(self.quadruples)))
 
 
@@ -90,10 +92,10 @@ for i in range(len(generator.backpatches)):
     position, target = generator.backpatches[i]
     op, arg1, arg2, _ = generator.quadruples[position]
     if "j" in op:
-        generator.quadruples[position] = (op, arg1, arg2, target)
+        generator.quadruples[position] = (op, arg1, arg2, int(target) + base_address)
     else:
         generator.quadruples[position] = (op, arg1, target, "_")
 
 # 打印回填后的四元式
 for i, quadruple in enumerate(generator.quadruples):
-    print(i + 100, ":", quadruple)
+    print(i + base_address, ":", quadruple)
